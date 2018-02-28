@@ -2,8 +2,6 @@ package dao;
 
 import domain.User;
 
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -11,11 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 //Todo: Fix JPA
-@Singleton
-@Startup
+@Stateless
 public class UserDAO {
 
-    @PersistenceContext()
+    @PersistenceContext
     EntityManager em;
 
     private List<User> users;
@@ -34,15 +31,15 @@ public class UserDAO {
 
     public void save(User user) {
         //Todo: Fix JPA
-        this.users.add(user);
-//        em.persist(user);
+//        this.users.add(user);
+        em.persist(user);
     }
 
     public List<User> findAll() {
         //Todo: Fix JPA
-        return this.users;
+//        return this.users;
 
-//        return em.createNamedQuery("User.allUser").getResultList();
+        return em.createNamedQuery("User.allUser").getResultList();
     }
 
     public User findById(Long id) {

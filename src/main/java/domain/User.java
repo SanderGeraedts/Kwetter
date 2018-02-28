@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(name = "KwetterUser")
 @NamedQuery(name = "User.allUser", query = "SELECT u FROM User u")
 public class User {
 
