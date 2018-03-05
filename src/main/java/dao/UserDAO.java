@@ -8,7 +8,6 @@ import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
-//Todo: Fix JPA
 @Stateless
 public class UserDAO {
 
@@ -30,26 +29,15 @@ public class UserDAO {
     }
 
     public void save(User user) {
-        //Todo: Fix JPA
-//        this.users.add(user);
         em.persist(user);
     }
 
     public List<User> findAll() {
-        //Todo: Fix JPA
-//        return this.users;
-
         return em.createNamedQuery("User.allUser").getResultList();
     }
 
     public User findById(Long id) {
-        for (User user : this.users) {
-            if (user.getId().equals(id)) {
-                return user;
-            }
-        }
-
-        return null;
+        return em.find(User.class, id);
     }
 
 }

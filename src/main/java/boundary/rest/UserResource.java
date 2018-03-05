@@ -1,18 +1,13 @@
 package boundary.rest;
 
 
-import dao.UserDAO;
 import domain.User;
 import service.UserService;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Path("users")
@@ -27,14 +22,7 @@ public class UserResource {
         return userService.findAll();
     }
 
-    @GET
-    @Path("test")
-    public String test() {
-        return "Hello world";
-    }
-
     @POST
-    @Path("create")
     @Consumes("application/x-www-form-urlencoded")
     public User create(final MultivaluedMap<String, String> formParams) {
 
@@ -48,5 +36,32 @@ public class UserResource {
         userService.save(user);
 
         return user;
+    }
+
+    @GET
+    @Path("{id : \\d+}")
+    public User findById(@PathParam("id") Long id) {
+        return userService.findById(id);
+    }
+
+    @GET
+    @Path("{id : \\d+}/follows")
+    public List<User> userFollows(@PathParam("id") Long id) {
+        return userService.findUserFollows(id);
+    }
+
+    @POST
+    @Path("{id : \\d+}/follows")
+    @Consumes("application/x-www-form-urlencoded")
+    public User addUserFollows(@PathParam("id") Long id, final MultivaluedMap<String, String> formParams) {
+        Long followerId = Long.parseLong(formParams.getFirst("followerId"));
+
+        return userService.saveUserFollows(id, followerId);
+    }
+
+    @GET
+    @Path("test")
+    public String test() {
+        return "Hello world";
     }
 }

@@ -1,7 +1,9 @@
 package domain;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "KwetterUser")
@@ -10,6 +12,7 @@ public class User {
 
     @Id
     @GeneratedValue
+    @Column(name = "ID")
     private Long id;
     private String name;
     private String email;
@@ -17,6 +20,15 @@ public class User {
     private String description;
     private String avatar;          //maybe change to Image, don't know yet
     private UserRole role;
+
+    @ManyToMany
+    @JoinTable(
+            name = "FOLLOWS",
+            joinColumns = @JoinColumn(name = "UserId", referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "Follows", referencedColumnName = "ID")
+    )
+    @JsonbTransient
+    private List<User> following;
 
     public Long getId() {
         return id;
@@ -72,6 +84,18 @@ public class User {
 
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public List<User> getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(List<User> following) {
+        this.following = following;
+    }
+
+    public void addFollowing(User following) {
+        this.following.add(following);
     }
 
     public User() {
