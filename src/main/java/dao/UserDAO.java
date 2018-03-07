@@ -17,8 +17,10 @@ public class UserDAO {
 
     public UserDAO() {}
 
-    public void save(User user) {
+    public User save(User user) {
         em.persist(user);
+
+        return user;
     }
 
     public void update(User user) {

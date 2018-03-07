@@ -17,8 +17,16 @@ public class UserService {
         return userDAO.findAll();
     }
 
-    public void save(User user) {
+    public void create(User user) {
         userDAO.save(user);
+    }
+
+
+
+    public User create(String name, String email, String passwordHash, String description, String avatar) {
+        User user = new User(name, email, passwordHash, description, avatar);
+
+        return userDAO.save(user);
     }
 
     public void update(User user) {

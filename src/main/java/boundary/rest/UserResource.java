@@ -25,15 +25,13 @@ public class UserResource {
     @POST
     @Consumes("application/x-www-form-urlencoded")
     public User create(final MultivaluedMap<String, String> formParams) {
-
-        User user = new User(
+        User user = userService.create(
                 formParams.getFirst("name"),
                 formParams.getFirst("email"),
                 formParams.getFirst("passwordHash"),
                 formParams.getFirst("description"),
-                formParams.getFirst("avatar"));
-
-        userService.save(user);
+                formParams.getFirst("avatar")
+        );
 
         return user;
     }
