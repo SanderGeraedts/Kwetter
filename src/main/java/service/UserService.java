@@ -21,6 +21,14 @@ public class UserService {
         userDAO.save(user);
     }
 
+    public void update(User user) {
+        userDAO.save(user);
+    }
+
+    public void remove(Long id) {
+        userDAO.remove(this.findById(id));
+    }
+
     public User findById(Long id) {
         return userDAO.findById(id);
     }
@@ -31,7 +39,13 @@ public class UserService {
         return user.getFollowing();
     }
 
-    public User saveUserFollows(Long userId, Long followId) {
+    public List<User> findUserFollowers(Long id) {
+        User user = userDAO.findById(id);
+
+        return user.getFollowers();
+    }
+
+    public List<User> saveUserFollows(Long userId, Long followId) {
         User user = userDAO.findById(userId);
         User follow = userDAO.findById(followId);
 
@@ -39,6 +53,6 @@ public class UserService {
 
         userDAO.save(user);
 
-        return user;
+        return user.getFollowing();
     }
 }

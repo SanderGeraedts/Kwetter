@@ -7,7 +7,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "KwetterUser")
-@NamedQuery(name = "User.allUser", query = "SELECT u FROM User u")
+@NamedQueries({
+        @NamedQuery(name = "User.allUser", query = "SELECT u FROM User u"),
+})
 public class User {
 
     @Id
@@ -22,13 +24,12 @@ public class User {
     private UserRole role;
 
     @ManyToMany
-    @JoinTable(
-            name = "FOLLOWS",
-            joinColumns = @JoinColumn(name = "UserId", referencedColumnName = "ID"),
-            inverseJoinColumns = @JoinColumn(name = "Follows", referencedColumnName = "ID")
-    )
     @JsonbTransient
     private List<User> following;
+
+    @ManyToMany(mappedBy = "following")
+    @JsonbTransient
+    private List<User> followers;
 
     public Long getId() {
         return id;
@@ -96,6 +97,14 @@ public class User {
 
     public void addFollowing(User following) {
         this.following.add(following);
+    }
+
+    public List<User> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(List<User> followers) {
+        this.followers = followers;
     }
 
     public User() {
