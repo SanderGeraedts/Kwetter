@@ -18,6 +18,8 @@ public class User {
     private Long id;
     private String name;
     private String email;
+
+    @JsonbTransient
     private String passwordHash;
     private String description;
     private String avatar;          //maybe change to Image, don't know yet

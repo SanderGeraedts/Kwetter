@@ -2,8 +2,8 @@ package domain;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @NamedQueries({
@@ -28,7 +28,7 @@ public class Kweet {
     private User creator;
 
     @ManyToMany
-    private List<User> hearts;
+    private Set<User> hearts;
 
     public Long getId() {
         return id;
@@ -62,11 +62,15 @@ public class Kweet {
         this.creator = creator;
     }
 
-    public List<User> getHearts() {
+    public Set<User> getHearts() {
         return hearts;
     }
 
-    public void setHearts(List<User> hearts) {
+    public Integer getNumberOfHearts() {
+        return hearts.size();
+    }
+
+    public void setHearts(Set<User> hearts) {
         this.hearts = hearts;
     }
 
@@ -74,19 +78,23 @@ public class Kweet {
         this.hearts.add(heart);
     }
 
+    public void removeHeart(User heart) {
+        this.hearts.remove(heart);
+    }
+
     public Kweet() {
 
     }
 
-    public Kweet(String message, User creator, List<User> hearts) {
+    public Kweet(String message, User creator) {
         this.id = id;
         this.message = message;
         this.createdAt = LocalDateTime.now();
         this.creator = creator;
-        this.hearts = hearts;
+        this.hearts = new HashSet<User>();
     }
 
-    public Kweet(String message, LocalDateTime createdAt, User creator, List<User> hearts) {
+    public Kweet(String message, LocalDateTime createdAt, User creator, Set<User> hearts) {
         this.id = id;
         this.message = message;
         this.createdAt = createdAt;
