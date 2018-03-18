@@ -17,13 +17,11 @@ public class UserService {
         return userDAO.findAll();
     }
 
-    public void create(User user) {
-        userDAO.save(user);
-    }
-
-
-
     public User create(String name, String email, String passwordHash, String description, String avatar) {
+        if ("".equals(name) || "".equals(email) || "".equals(passwordHash)) {
+            throw new IllegalArgumentException("Name, email and passwordHash are required fields and can't be null");
+        }
+
         User user = new User(name, email, passwordHash, description, avatar);
 
         return userDAO.save(user);

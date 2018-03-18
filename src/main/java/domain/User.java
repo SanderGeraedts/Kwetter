@@ -2,6 +2,7 @@ package domain;
 
 import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -110,7 +111,8 @@ public class User {
     }
 
     public User() {
-
+        this.followers = new ArrayList<>();
+        this.following = new ArrayList<>();
     }
 
     public User(String name, String email, String passwordHash, String description, String avatar) {
@@ -120,6 +122,9 @@ public class User {
         this.description = description;
         this.avatar = avatar;
         this.role = UserRole.USER;
+
+        this.followers = new ArrayList<>();
+        this.following = new ArrayList<>();
     }
 
     public User(String name, String email, String passwordHash, String description, String avatar, UserRole role) {
@@ -129,5 +134,8 @@ public class User {
         this.description = description;
         this.avatar = avatar;
         this.role = role;
+
+        this.followers = new ArrayList<>();
+        this.following = new ArrayList<>();
     }
 }
