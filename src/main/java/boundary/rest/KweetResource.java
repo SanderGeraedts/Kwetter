@@ -2,11 +2,19 @@ package boundary.rest;
 
 import domain.Kweet;
 import service.KweetService;
+import util.ResourceUriBuilder;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.List;
 
 @Path("kweets")
@@ -16,9 +24,30 @@ public class KweetResource {
     @Inject
     KweetService kweetService;
 
+    @Inject
+    ResourceUriBuilder resourceUriBuilder;
+
+    @Context
+    UriInfo uriInfo;
+
     @GET
-    public List<Kweet> findAll() {
-        return kweetService.findAll();
+    public JsonArray findAll() {
+
+        JsonArrayBuilder list = Json.createArrayBuilder();
+        List<Kweet> kweets = kweetService.findAll();
+
+        for (Kweet kweet : kweets) {
+            list.add(kweet.toJson(
+                    resourceUriBuilder.createResourceUri(
+                            KweetResource.class,
+                            "find",
+                            kweet.getId(),
+                            uriInfo),
+                    uriInfo.getBaseUri().toString()
+            ));
+        }
+
+        return list.build();
     }
 
     @POST
@@ -32,8 +61,16 @@ public class KweetResource {
 
     @GET
     @Path("{id : \\d+}")
-    public Kweet find(@PathParam("id") Long id) {
-        return kweetService.find(id);
+    public JsonObject find(@PathParam("id") Long id) {
+        Kweet kweet = kweetService.find(id);
+
+        final URI self = resourceUriBuilder.createResourceUri(
+                KweetResource.class,
+                "find",
+                kweet.getId(),
+                uriInfo
+        );
+        return kweet.toJson(self, uriInfo.getBaseUri().toString());
     }
 
     @DELETE
@@ -68,7 +105,7 @@ public class KweetResource {
     @POST
     @Path("{id : \\d+}/unheart")
     public Integer unheart(@PathParam("id") Long id,
-                         final MultivaluedMap<String, String> formParams) {
+                           final MultivaluedMap<String, String> formParams) {
         Kweet kweet = kweetService.find(id);
 
         return kweetService.unheartKweet(kweet,

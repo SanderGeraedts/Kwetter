@@ -1,13 +1,23 @@
 package boundary.rest;
 
 
+import domain.Token;
 import domain.User;
+import service.AuthService;
 import service.UserService;
+import util.ResourceUriBuilder;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.List;
 
 @Path("users")
@@ -17,9 +27,32 @@ public class UserResource {
     @Inject
     UserService userService;
 
+    @Inject
+    AuthService authService;
+
+    @Inject
+    ResourceUriBuilder resourceUriBuilder;
+
+    @Context
+    UriInfo uriInfo;
+
+
     @GET
-    public List<User> findAll() {
-        return userService.findAll();
+    public JsonArray findAll() {
+        JsonArrayBuilder list = Json.createArrayBuilder();
+        List<User> users = userService.findAll();
+
+        for (User user : users) {
+            list.add(user.toJson(
+                    resourceUriBuilder.createResourceUri(
+                            UserResource.class,
+                            "findById",
+                            user.getId(),
+                            uriInfo)
+            ));
+        }
+
+        return list.build();
     }
 
     @POST
@@ -28,7 +61,7 @@ public class UserResource {
         User user = userService.create(
                 formParams.getFirst("name"),
                 formParams.getFirst("email"),
-                formParams.getFirst("passwordHash"),
+                formParams.getFirst("password"),
                 formParams.getFirst("description"),
                 formParams.getFirst("avatar")
         );
@@ -38,8 +71,17 @@ public class UserResource {
 
     @GET
     @Path("{id : \\d+}")
-    public User findById(@PathParam("id") Long id) {
-        return userService.findById(id);
+    public JsonObject findById(@PathParam("id") Long id) {
+        User user = userService.findById(id);
+
+        final URI self = resourceUriBuilder.createResourceUri(
+                UserResource.class,
+                "findById",
+                user.getId(),
+                uriInfo
+        );
+
+        return user.toJson(self);
     }
 
     @DELETE
@@ -60,19 +102,19 @@ public class UserResource {
         String description = formParams.getFirst("description");
         String avatar = formParams.getFirst("name");
 
-        if(name != null) {
+        if (name != null) {
             user.setName(name);
         }
 
-        if(email != null) {
+        if (email != null) {
             user.setEmail(email);
         }
 
-        if(description != null) {
+        if (description != null) {
             user.setDescription(description);
         }
 
-        if(avatar != null) {
+        if (avatar != null) {
             user.setAvatar(avatar);
         }
 
@@ -100,5 +142,15 @@ public class UserResource {
         Long followerId = Long.parseLong(formParams.getFirst("followerId"));
 
         return userService.saveUserFollows(id, followerId);
+    }
+
+    @POST
+    @Path("authenticate")
+    @Consumes("application/x-www-form-urlencoded")
+    public String authenticateUser(final MultivaluedMap<String, String> formParams) {
+        return authService.getToken(
+                formParams.getFirst("email"),
+                formParams.getFirst("password")
+        );
     }
 }

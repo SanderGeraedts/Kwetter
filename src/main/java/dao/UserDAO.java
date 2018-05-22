@@ -39,4 +39,19 @@ public class UserDAO {
         return em.find(User.class, id);
     }
 
+    public User findByEmail(String email) {
+        return (User) em.createNamedQuery("User.findUserByEmail")
+                .setParameter("email", email)
+                .getResultList()
+                .get(0);
+    }
+
+    public User findByCredentials(String email, String password) {
+        return (User) em.createNamedQuery("User.findUserByCredentials")
+                .setParameter("email", email)
+                .setParameter("password", password)
+                .getResultList()
+                .get(0);
+    }
+
 }

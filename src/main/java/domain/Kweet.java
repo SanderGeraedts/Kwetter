@@ -1,6 +1,9 @@
 package domain;
 
+import javax.json.Json;
+import javax.json.JsonObject;
 import javax.persistence.*;
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -100,5 +103,23 @@ public class Kweet {
         this.createdAt = createdAt;
         this.creator = creator;
         this.hearts = hearts;
+    }
+
+    public JsonObject toJson(URI self, String base) {
+        return Json.createObjectBuilder()
+                .add("id", this.id)
+                .add("message", this.message)
+                .add("createdAt", this.createdAt.toString())
+                .add("_links", Json.createObjectBuilder()
+                        .add("self", Json.createObjectBuilder()
+                                .add("rel", "self")
+                                .add("href", self.toString())
+                        )
+                        .add("creator", Json.createObjectBuilder()
+                                .add("rel", "creator")
+                                .add("href", base + "users/" + this.creator.getId())
+                        )
+                )
+                .build();
     }
 }

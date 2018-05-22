@@ -1,7 +1,15 @@
 package domain;
 
+import boundary.rest.KweetResource;
+import boundary.rest.UserResource;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,7 +17,15 @@ import java.util.List;
 @Entity
 @Table(name = "KwetterUser")
 @NamedQueries({
-        @NamedQuery(name = "User.allUser", query = "SELECT u FROM User u"),
+        @NamedQuery(name = "User.allUser",
+                query = "SELECT u FROM User u"
+        ),
+        @NamedQuery(name = "User.findUserByEmail",
+                query = "SELECT u FROM User u WHERE u.email = :email"
+        ),
+        @NamedQuery(name = "User.findUserByCredentials",
+                query = "SELECT u FROM User u WHERE u.email = :email AND u.password = :password"
+        ),
 })
 public class User {
 
@@ -20,8 +36,9 @@ public class User {
     private String name;
     private String email;
 
-    @JsonbTransient
-    private String passwordHash;
+    //    @JsonbTransient
+    @Column(name = "USERPASSWORD")
+    private String password;
     private String description;
     private String avatar;          //maybe change to Image, don't know yet
     private UserRole role;
@@ -58,12 +75,12 @@ public class User {
         this.email = email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getDescription() {
@@ -111,14 +128,12 @@ public class User {
     }
 
     public User() {
-        this.followers = new ArrayList<>();
-        this.following = new ArrayList<>();
     }
 
-    public User(String name, String email, String passwordHash, String description, String avatar) {
+    public User(String name, String email, String password, String description, String avatar) {
         this.name = name;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.description = description;
         this.avatar = avatar;
         this.role = UserRole.USER;
@@ -127,15 +142,41 @@ public class User {
         this.following = new ArrayList<>();
     }
 
-    public User(String name, String email, String passwordHash, String description, String avatar, UserRole role) {
+    public User(String name, String email, String password, String description, String avatar, UserRole role) {
         this.name = name;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.description = description;
         this.avatar = avatar;
         this.role = role;
 
         this.followers = new ArrayList<>();
         this.following = new ArrayList<>();
+    }
+
+    public JsonObject toJson(URI self) {
+
+        return Json.createObjectBuilder()
+                .add("id", this.id)
+                .add("name", this.name)
+                .add("email", this.email)
+                .add("description", this.description)
+                .add("avatar", this.avatar)
+                .add("role", this.role.toString())
+                .add("_links", Json.createObjectBuilder()
+                        .add("self", Json.createObjectBuilder()
+                                .add("rel", "self")
+                                .add("href", self.toString())
+                        )
+                        .add("followers", Json.createObjectBuilder()
+                                .add("rel", "followers")
+                                .add("href", self.toString() + "/followers")
+                        )
+                        .add("follows", Json.createObjectBuilder()
+                                .add("rel", "follows")
+                                .add("href", self.toString() + "/follows")
+                        )
+                )
+                .build();
     }
 }

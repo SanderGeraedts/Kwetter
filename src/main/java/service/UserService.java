@@ -32,7 +32,9 @@ public class UserService {
     }
 
     public void remove(Long id) {
-        userDAO.remove(this.findById(id));
+        User user = this.findById(id);
+
+        userDAO.remove(user);
     }
 
     public User findById(Long id) {
@@ -49,6 +51,10 @@ public class UserService {
         User user = userDAO.findById(id);
 
         return user.getFollowers();
+    }
+
+    public User findByCredentials(String email, String password) {
+        return userDAO.findByCredentials(email, password);
     }
 
     public List<User> saveUserFollows(Long userId, Long followId) {
